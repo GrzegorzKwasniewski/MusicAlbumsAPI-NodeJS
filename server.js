@@ -15,14 +15,14 @@ app.use(bodyParser.json())
 // setting GET method
 
 app.get('/', function (req, res) {
-    res.send('TODO API Root');
-});
-
-app.get('/musicAlbums', function (res, req) {
- 
+    res.send('Music Albums API Root')
 })
 
-app.get('/musicAlbums/:id', function (res, req) {
+app.get('/musicalbums', function (req, res) {
+    res.send('You are in musicAlbums end point')
+})
+
+app.get('/musicalbums/:id', function (res, req) {
     var musicAlbumID = parseInt(req.params.id, 10)
     var matchedMusicAlbums = _.findWhere(musicAlbums, {id: musicAlbumID})
     
@@ -32,3 +32,7 @@ app.get('/musicAlbums/:id', function (res, req) {
         res.status(404).send();
     }
 })
+
+app.listen(PORT, function () {
+    console.log('Express listening on port ' + PORT);
+});
