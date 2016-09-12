@@ -19,7 +19,21 @@ app.get('/', function (req, res) {
 })
 
 app.get('/musicalbums', function (req, res) {
-    res.send('You are in musicAlbums end point')
+    res.send('You are in Music Albums Collection end point')
+    var queryParams = req.query
+    var filteredMusicAlbums = musicAlbums
+    
+    if (queryParams.hasOwnProperty('ownLimitedEdition') && queryParams.ownLimitedEdition === true) {
+        filteredMusicAlbums = _.where(filteredMusicAlbums, {ownLimitedEdition: true})
+    }
+    
+    if (queryParams.hasOwnProperty('ownPhysicalCD') && queryParams.ownPhysicalCD === true) {
+        filteredMusicAlbums = _.where(filteredMusicAlbums, {ownPhysicalCD: true})
+    } 
+    
+    if (queryParams.hasOwnProperty('ownDigital') && queryParams.ownDigital === true) {
+        filteredMusicAlbums = _.where(filteredMusicAlbums, {ownDigital: true})
+    } 
 })
 
 app.get('/musicalbums/:id', function (res, req) {
