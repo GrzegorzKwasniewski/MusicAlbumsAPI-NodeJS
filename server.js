@@ -19,7 +19,6 @@ app.get('/', function (req, res) {
 })
 
 app.get('/musicalbums', function (req, res) {
-    res.send('You are in Music Albums Collection end point')
     var queryParams = req.query
     var filteredMusicAlbums = musicAlbums
     
@@ -33,10 +32,12 @@ app.get('/musicalbums', function (req, res) {
     
     if (queryParams.hasOwnProperty('ownDigital') && queryParams.ownDigital === true) {
         filteredMusicAlbums = _.where(filteredMusicAlbums, {ownDigital: true})
-    } 
+    }
+    
+    res.json(filteredMusicAlbums);
 })
 
-app.get('/musicalbums/:id', function (res, req) {
+app.get('/musicalbums/:id', function (req, res) {
     var musicAlbumID = parseInt(req.params.id, 10)
     var matchedMusicAlbums = _.findWhere(musicAlbums, {id: musicAlbumID})
     
@@ -45,6 +46,21 @@ app.get('/musicalbums/:id', function (res, req) {
     } else {
         res.status(404).send();
     }
+})
+
+app.post('/musicalbums', function (req, res) { 
+    // filter JSON fields from body of the message
+    var body = _.pick(req.body, 'publishedDate');
+    var publishedDateFromString = new Date(body.publishedDate) 
+    
+    if (!_.isDate(publishedDateFromString) || _.isEmpty(body.publishedDate)) {
+        res.status(400).send
+    }
+    
+    //body.title = body.title.trim();    
+    body.id = musicAlbumNextID++;
+    musicAlbums.push(body);
+    res.json(musicAlbums);
 })
 
 app.listen(PORT, function () {
