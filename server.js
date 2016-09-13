@@ -48,19 +48,22 @@ app.get('/musicalbums/:id', function (req, res) {
     }
 })
 
-app.post('/musicalbums', function (req, res) { 
+app.post('/musicalbums', function (req, res) {
+    
+    var regex = new RegExp('[0-9]{4}-[0-9]{2}-[0-9]{2}')
+    
     // filter JSON fields from body of the message
     var body = _.pick(req.body, 'publishedDate');
-    var publishedDateFromString = new Date(body.publishedDate) 
+    var publishedDateFromString = body.publishedDate
     
-    if (!_.isDate(publishedDateFromString) || _.isEmpty(body.publishedDate)) {
-        res.status(400).send
-    }
-    
-    //body.title = body.title.trim();    
-    body.id = musicAlbumNextID++;
-    musicAlbums.push(body);
-    res.json(musicAlbums);
+    if (!regex.test(publishedDateFromString) || _.isEmpty(body.publishedDate)) {
+        res.status(400).send('Published date must have valid format \(yyyy-mm-dd\) and can\'t be null')
+    } else {
+        //body.title = body.title.trim();    
+        body.id = musicAlbumNextID++;
+        musicAlbums.push(body);
+        res.json(musicAlbums);
+    } 
 })
 
 app.listen(PORT, function () {
