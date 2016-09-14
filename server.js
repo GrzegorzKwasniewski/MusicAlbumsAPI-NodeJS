@@ -22,16 +22,22 @@ app.get('/musicalbums', function (req, res) {
     var queryParams = req.query
     var filteredMusicAlbums = musicAlbums
     
-    if (queryParams.hasOwnProperty('ownLimitedEdition') && queryParams.ownLimitedEdition === true) {
+    if (queryParams.hasOwnProperty('ownLimitedEdition') && queryParams.ownLimitedEdition === 'true') {
         filteredMusicAlbums = _.where(filteredMusicAlbums, {ownLimitedEdition: true})
+    } else if (queryParams.hasOwnProperty('ownLimitedEdition') && queryParams.ownLimitedEdition === 'false') {
+        filteredMusicAlbums = _.where(filteredMusicAlbums, {ownLimitedEdition: false})
     }
     
-    if (queryParams.hasOwnProperty('ownPhysicalCD') && queryParams.ownPhysicalCD === true) {
+    if (queryParams.hasOwnProperty('ownPhysicalCD') && queryParams.ownPhysicalCD === 'true') {
         filteredMusicAlbums = _.where(filteredMusicAlbums, {ownPhysicalCD: true})
-    } 
+    } else if (queryParams.hasOwnProperty('ownPhysicalCD') && queryParams.ownPhysicalCD === 'false') {
+        filteredMusicAlbums = _.where(filteredMusicAlbums, {ownPhysicalCD: false})
+    }
     
-    if (queryParams.hasOwnProperty('ownDigital') && queryParams.ownDigital === true) {
+    if (queryParams.hasOwnProperty('ownDigital') && queryParams.ownDigital === 'true') {
         filteredMusicAlbums = _.where(filteredMusicAlbums, {ownDigital: true})
+    } else if (queryParams.hasOwnProperty('ownDigital') && queryParams.ownDigital === 'false') {
+        filteredMusicAlbums = _.where(filteredMusicAlbums, {ownDigital: false})
     }
     
     res.json(filteredMusicAlbums);
@@ -49,15 +55,6 @@ app.get('/musicalbums/:id', function (req, res) {
 })
 
 app.post('/musicalbums', function (req, res) {
-    
-//       title: 'Nowe Światło',
-//    author: 'Mioush Onar',
-//    tracksCount: 12,
-//    publisher: 'Step Records',
-//    publishedDate: '2014-10-01',
-//    ownLimitedEdition: true,
-//    ownPhysicalCD: true,
-//    ownDigital: false
 
     var regexForDate = new RegExp('^(19|20)[0-9][0-9]-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$')
     var regexForTracksCount = new RegExp('^([0-9]|[0-9][0-9])$')
@@ -97,12 +94,11 @@ app.post('/musicalbums', function (req, res) {
     
     if (!_.isBoolean(body.ownDigital)) {
         res.status(400).send('Own Digital field for music album must be in boolean format and can\'t be null')
+    } else {
+        body.id = musicAlbumNextID++;
+        musicAlbums.push(body);
+        res.json(musicAlbums);
     }
-    
-    body.id = musicAlbumNextID++;
-    musicAlbums.push(body);
-    res.json(musicAlbums);
-    
 })
 
 app.listen(PORT, function () {
