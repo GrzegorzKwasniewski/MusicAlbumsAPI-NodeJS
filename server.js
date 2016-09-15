@@ -13,7 +13,6 @@ var musicAlbumNextID = 1
 app.use(bodyParser.json())
 
 // setting GET method
-
 app.get('/', function (req, res) {
     res.send('Music Albums API Root')
 })
@@ -38,6 +37,12 @@ app.get('/musicalbums', function (req, res) {
         filteredMusicAlbums = _.where(filteredMusicAlbums, {ownDigital: true})
     } else if (queryParams.hasOwnProperty('ownDigital') && queryParams.ownDigital === 'false') {
         filteredMusicAlbums = _.where(filteredMusicAlbums, {ownDigital: false})
+    }
+    
+    if (queryParams.hasOwnProperty('q') && queryParams.q.length > 0) {
+        filteredMusicAlbums = _.filter(filteredMusicAlbums, function(musicAlbum) {
+             return musicAlbum.title.toLowerCase().indexOf(queryParams.q.toLowerCase()) > -1 || musicAlbum.author.toLowerCase().indexOf(queryParams.q.toLowerCase()) > -1 || musicAlbum.publisher.toLowerCase().indexOf(queryParams.q.toLowerCase()) > -1
+        });
     }
     
     res.json(filteredMusicAlbums);
@@ -100,6 +105,18 @@ app.post('/musicalbums', function (req, res) {
         res.json(musicAlbums);
     }
 })
+
+app.delete('/musicalbums/:id', function (req, res) {
+    var musicAlbumId = parseInt(req.params.id, 10);
+    var matchedMusicAlbum = _.findWhere(musicAlbums, {id: musicAlbumId});
+    
+    if (!matchedMusicAlbum) {
+        res.status(404).json({"error": "No music album found with that id"});
+    } else {
+        musicAlbums = _.without(musicAlbums, matchedMusicAlbum);
+        res.json(matchedMusicAlbum);
+    }
+});
 
 app.listen(PORT, function () {
     console.log('Express listening on port ' + PORT);
