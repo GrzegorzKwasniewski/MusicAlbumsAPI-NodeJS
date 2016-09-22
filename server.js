@@ -111,7 +111,7 @@ app.delete('/musicalbums/:id', function (req, res) {
     var matchedMusicAlbum = _.findWhere(musicAlbums, {id: musicAlbumId});
     
     if (!matchedMusicAlbum) {
-        res.status(404).json({"error": "No music album found with that id"});
+        res.status(404).json({"error": "No music album found with that ID"});
     } else {
         musicAlbums = _.without(musicAlbums, matchedMusicAlbum);
         res.json(matchedMusicAlbum);
@@ -119,6 +119,8 @@ app.delete('/musicalbums/:id', function (req, res) {
 })
 
 app.put('/musicalbums/:id', function (req, res) {
+    
+    // Try to add error message when some try to pass field that is not expected in the object - e.g "ownDigitallll"
     
     var regexForDate = new RegExp('^(19|20)[0-9][0-9]-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$')
     var regexForTracksCount = new RegExp('^([0-9]|[0-9][0-9])$')
@@ -167,6 +169,18 @@ app.put('/musicalbums/:id', function (req, res) {
         validAttributes.ownLimitedEdition = body.ownLimitedEdition
     } else if (body.hasOwnProperty('ownLimitedEdition')) {
         return res.status(400).json({"error": 'Own Limited Edition field for music album must be in boolean format and can\'t be null'})
+    }
+    
+    if (body.hasOwnProperty('ownPhysicalCD') && _.isBoolean(body.ownPhysicalCD)) {
+        validAttributes.ownPhysicalCD = body.ownPhysicalCD
+    } else if (body.hasOwnProperty('ownPhysicalCD')) {
+        return res.status(400).json({"error": 'Own Physical CD field for music album must be in boolean format and can\'t be null'})
+    }
+    
+    if (body.hasOwnProperty('ownDigital') && _.isBoolean(body.ownDigital)) {
+        validAttributes.ownDigital = body.ownDigital
+    } else if (body.hasOwnProperty('ownDigital')) {
+        return res.status(400).json({"error": 'Own Digital field for music album must be in boolean format and can\'t be null'})
     }
         
     // update musicsAlbums array because object under matchedMusicAlbum is passed by reference
