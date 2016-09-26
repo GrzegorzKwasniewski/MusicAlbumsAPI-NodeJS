@@ -2,6 +2,7 @@ var express = require('express')
 var app = express()
 var bodyParser = require('body-parser')
 var _ = require('underscore')
+var db = require('./db.js')
 
 // port for Heroku or local
 var PORT = process.env.PORT || 3000
