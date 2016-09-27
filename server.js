@@ -20,33 +20,39 @@ app.get('/', function (req, res) {
 
 app.get('/musicalbums', function (req, res) {
     var queryParams = req.query
-    var filteredMusicAlbums = musicAlbums
+    var predicateObject = {}
     
     if (queryParams.hasOwnProperty('ownLimitedEdition') && queryParams.ownLimitedEdition === 'true') {
-        filteredMusicAlbums = _.where(filteredMusicAlbums, {ownLimitedEdition: true})
+        predicateObject.ownLimitedEdition = true
     } else if (queryParams.hasOwnProperty('ownLimitedEdition') && queryParams.ownLimitedEdition === 'false') {
-        filteredMusicAlbums = _.where(filteredMusicAlbums, {ownLimitedEdition: false})
+        predicateObject.ownLimitedEdition = false
     }
     
     if (queryParams.hasOwnProperty('ownPhysicalCD') && queryParams.ownPhysicalCD === 'true') {
-        filteredMusicAlbums = _.where(filteredMusicAlbums, {ownPhysicalCD: true})
+        predicateObject.ownPhysicalCD = true
     } else if (queryParams.hasOwnProperty('ownPhysicalCD') && queryParams.ownPhysicalCD === 'false') {
-        filteredMusicAlbums = _.where(filteredMusicAlbums, {ownPhysicalCD: false})
+        predicateObject.ownPhysicalCD = false
     }
     
     if (queryParams.hasOwnProperty('ownDigital') && queryParams.ownDigital === 'true') {
-        filteredMusicAlbums = _.where(filteredMusicAlbums, {ownDigital: true})
+        predicateObject.ownDigital = true
     } else if (queryParams.hasOwnProperty('ownDigital') && queryParams.ownDigital === 'false') {
-        filteredMusicAlbums = _.where(filteredMusicAlbums, {ownDigital: false})
+        predicateObject.ownDigital = false
     }
     
-    if (queryParams.hasOwnProperty('q') && queryParams.q.length > 0) {
-        filteredMusicAlbums = _.filter(filteredMusicAlbums, function(musicAlbum) {
-             return musicAlbum.title.toLowerCase().indexOf(queryParams.q.toLowerCase()) > -1 || musicAlbum.author.toLowerCase().indexOf(queryParams.q.toLowerCase()) > -1 || musicAlbum.publisher.toLowerCase().indexOf(queryParams.q.toLowerCase()) > -1
-        });
+   if (queryParams.hasOwnProperty('q') && queryParams.q.length > 0) {
+            console.log(predicateObject)
+
+        predicateObject.description = {
+            $like: '%' + queryParams.q + '%' // check for info about %
+        }
     }
     
-    res.json(filteredMusicAlbums);
+    db.musicalbums.findAll({where: predicateObject}).then(function (musicalbums) {
+        res.json(musicalbums)
+    }, function (e) {
+        res.status(500).send()
+    })
 })
 
 app.get('/musicalbums/:id', function (req, res) {
