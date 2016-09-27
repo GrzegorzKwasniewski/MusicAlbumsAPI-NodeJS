@@ -14,7 +14,7 @@ if (env === 'production') {
 
 var db = {}
 
-db.todo = sequelize.import(__dirname + '/models/musicalbum.js')
+db.musicalbums = sequelize.import(__dirname + '/models/musicalbum.js')
 db.sequelize = sequelize
 db.Sequelize = Sequelize
 

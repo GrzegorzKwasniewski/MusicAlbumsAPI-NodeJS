@@ -62,49 +62,13 @@ app.get('/musicalbums/:id', function (req, res) {
 
 app.post('/musicalbums', function (req, res) {
 
-    var regexForDate = new RegExp('^(19|20)[0-9][0-9]-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$')
-    var regexForTracksCount = new RegExp('^([0-9]|[0-9][0-9])$')
-    
-    // filter JSON fields from body of the message
     var body = _.pick(req.body, 'title', 'author', 'tracksCount', 'publisher',  'publishedDate', 'ownLimitedEdition', 'ownPhysicalCD', 'ownDigital')
-    var publishedDateFromString = body.publishedDate
     
-    if (!_.isString(body.title) || body.title.trim().length === 0) {
-        return res.status(400).send('Title field for music album must be in string format and can\'t be null or empty')
-    }
-    
-    if (!_.isString(body.author) || body.author.trim().length === 0) {
-        return res.status(400).send('Author field for music album must be in string format and can\'t be null or empty')
-    }
-    
-    if (!_.isNumber(body.tracksCount) || !regexForTracksCount.test(body.tracksCount)) {
-        return res.status(400).send('Number of tracks field for music album must be in int format (from 0 to 99) and can\'t be null or empty')
-    }
-    
-    if (!_.isString(body.publisher) || body.publisher.trim().length === 0) {
-        return res.status(400).send('Publisher field for music album must be in string format and can\'t be null or empty')
-    }
-    
-    // TODO try to change this to one function with bool return
-    if (!regexForDate.test(publishedDateFromString) || _.isEmpty(body.publishedDate)) {
-        return res.status(400).send('Published date must have valid format \(yyyy-mm-dd\), must be in range of 1900-01-01 - 2099-12-31 and can\'t be null or empty')
-    }
-    
-    if (!_.isBoolean(body.ownLimitedEdition)) {
-        return res.status(400).send('Own Limited Edition field for music album must be in boolean format and can\'t be null')
-    }
-    
-    if (!_.isBoolean(body.ownPhysicalCD)) {
-        return res.status(400).send('Own Physical CD field for music album must be in boolean format and can\'t be null')
-    }
-    
-    if (!_.isBoolean(body.ownDigital)) {
-        return res.status(400).send('Own Digital field for music album must be in boolean format and can\'t be null')
-    } else {
-        body.id = musicAlbumNextID++;
-        musicAlbums.push(body);
-        res.json(musicAlbums);
-    }
+    db.musicalbums.create(body).then(function (musicalbums) {
+        res.json(musicalbums.toJSON())
+    }, function (e) {
+        res.status(400).json(e)
+    })
 })
 
 app.delete('/musicalbums/:id', function (req, res) {
@@ -191,6 +155,8 @@ app.put('/musicalbums/:id', function (req, res) {
     
 });
 
-app.listen(PORT, function () {
-    console.log('Express listening on port ' + PORT);
-});
+db.sequelize.sync().then(function () {
+    app.listen(PORT, function () {
+        console.log('Express listening on port ' + PORT);
+    });
+})
