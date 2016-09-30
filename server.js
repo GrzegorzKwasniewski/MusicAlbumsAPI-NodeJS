@@ -22,6 +22,26 @@ app.get('/musicalbums', function (req, res) {
     var queryParams = req.query
     var predicateObject = {}
     
+    if (queryParams.hasOwnProperty('title')) {
+        predicateObject.title = {
+            $like: '%' + queryParams.title + '%'
+        }
+    }
+    
+    if (queryParams.hasOwnProperty('author')) {
+        predicateObject.author = {
+            $like: '%' + queryParams.author + '%'
+        }
+    }
+    
+    if (queryParams.hasOwnProperty('publisher')) {
+        predicateObject.publisher = {
+            $like: '%' + queryParams.publisher + '%'
+        }
+    }
+    
+    // TRY TO IMPLEMENT SEARCH OF TRACKS COUNT AND PUBLISHED DATA
+    
     if (queryParams.hasOwnProperty('ownLimitedEdition') && queryParams.ownLimitedEdition === 'true') {
         predicateObject.ownLimitedEdition = true
     } else if (queryParams.hasOwnProperty('ownLimitedEdition') && queryParams.ownLimitedEdition === 'false') {
@@ -39,12 +59,19 @@ app.get('/musicalbums', function (req, res) {
     } else if (queryParams.hasOwnProperty('ownDigital') && queryParams.ownDigital === 'false') {
         predicateObject.ownDigital = false
     }
-    
-   if (queryParams.hasOwnProperty('q') && queryParams.q.length > 0) {
-            console.log(predicateObject)
-
-        predicateObject.description = {
-            $like: '%' + queryParams.q + '%' // check for info about %
+        
+    // jak to zrobić, żeby wyszukiwało tylko w jednym, a nie w dwóch jednocześnie?
+    if (queryParams.hasOwnProperty('q') && queryParams.q.length > 0) {
+        predicateObject.title = {
+            $like: '%' + queryParams.q + '%'
+        }
+        
+        predicateObject.author = {
+            $like: '%' + queryParams.q + '%'
+        }
+        
+        predicateObject.publisher = {
+            $like: '%' + queryParams.q + '%'
         }
     }
     
@@ -57,13 +84,15 @@ app.get('/musicalbums', function (req, res) {
 
 app.get('/musicalbums/:id', function (req, res) {
     var musicAlbumID = parseInt(req.params.id, 10)
-    var matchedMusicAlbums = _.findWhere(musicAlbums, {id: musicAlbumID})
-    
-    if (matchedMusicAlbums) {
-        res.json(matchedMusicAlbums);
-    } else {
-        res.status(404).send();
-    }
+    db.musicalbums.findById(musicAlbumID).then(function (musicAlbum) {
+        if (!!musicAlbum) {
+            res.json(musicAlbum.toJSON())
+        } else {
+            res.status(404).send()
+        }
+    }, function (e) {
+        res.status(500).send()
+    })
 })
 
 app.post('/musicalbums', function (req, res) {
