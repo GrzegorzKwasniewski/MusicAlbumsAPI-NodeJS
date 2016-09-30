@@ -108,14 +108,22 @@ app.post('/musicalbums', function (req, res) {
 
 app.delete('/musicalbums/:id', function (req, res) {
     var musicAlbumId = parseInt(req.params.id, 10);
-    var matchedMusicAlbum = _.findWhere(musicAlbums, {id: musicAlbumId});
     
-    if (!matchedMusicAlbum) {
-        res.status(404).json({"error": "No music album found with that ID"});
-    } else {
-        musicAlbums = _.without(musicAlbums, matchedMusicAlbum);
-        res.json(matchedMusicAlbum);
-    }
+    db.musicalbums.destroy({
+        where: {
+            id: musicAlbumId
+        }
+    }).then(function (rowsDeleted) {
+        if (rowsDeleted === 0) {
+            res.status(404).json({
+                error: 'There is no music album with specified ID'
+            })
+        } else {
+            res.status(204).send()
+        }
+    }, function (e) {
+        res.status(500).send()
+    })
 })
 
 app.put('/musicalbums/:id', function (req, res) {
