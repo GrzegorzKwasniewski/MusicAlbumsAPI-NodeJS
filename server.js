@@ -106,6 +106,28 @@ app.post('/musicalbums', function (req, res) {
     })
 })
 
+app.post('/users/login', function (req, res) {
+	var body = _.pick(req.body, 'email', 'password')
+	var userInstance;
+
+	db.user.authenticate(body).then(function (user) { // pass authenticated user
+        // when we authenticate our user we want to create a token for him
+		var token = user.generateToken('authentication');
+        // we write it like this so we can pass user to another 'then' call
+		userInstance = user;
+
+		return db.token.create({
+            // this will be coverted to hash and this hash will be stored - see token.js
+			token: token
+		});
+	}).then(function (tokenInstance) {
+        // this is where we send back our token in respond
+		res.header('Auth', tokenInstance.get('token')).json(userInstance.toPublicJSON()); // userInstance is an user from db and in user model You have method toPublicJSON()
+	}).catch(function () {
+		res.status(401).send();
+	})
+})
+
 app.delete('/musicalbums/:id', function (req, res) {
     var musicAlbumId = parseInt(req.params.id, 10);
     

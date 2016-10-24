@@ -110,7 +110,7 @@ module.exports = function(sequelize, DataTypes) {
                 } 
                 
                 try {
-                    // this.get('id') will get id from actual instance
+                    // this.get('id') will get id from actual instance - id of user
                     // in this case type wiil 'Authentication' as we will pass it to our call from server.js
                     var stringData = JSON.stringify({id: this.get('id'), type: type}) // we are creating object in line
                     // TESTING
