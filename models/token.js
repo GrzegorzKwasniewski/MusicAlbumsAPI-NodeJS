@@ -18,5 +18,4 @@ module.exports = function (sequelize, DataTypes) {
 		},
 		tokenHash: DataTypes.STRING
 	})
-
 }

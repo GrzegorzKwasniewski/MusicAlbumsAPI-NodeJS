@@ -113,8 +113,6 @@ module.exports = function(sequelize, DataTypes) {
                     // this.get('id') will get id from actual instance - id of user
                     // in this case type wiil 'Authentication' as we will pass it to our call from server.js
                     var stringData = JSON.stringify({id: this.get('id'), type: type}) // we are creating object in line
-                    // TESTING
-                    console.log("README ********************" + stringData)
                     var encryptedData = cryptojs.AES.encrypt(stringData, '#$rte!@23').toString()
                     var token = jsonWebToken.sign({
                         token: encryptedData

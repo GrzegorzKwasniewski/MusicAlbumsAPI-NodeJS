@@ -15,7 +15,13 @@ if (env === 'production') {
 var db = {}
 
 db.musicalbums = sequelize.import(__dirname + '/models/musicalbum.js')
+db.user = sequelize.import(__dirname + '/models/user.js');
+db.token = sequelize.import(__dirname + '/models/token.js');
 db.sequelize = sequelize
 db.Sequelize = Sequelize
+
+// form Sequelize api
+db.musicalbums.belongsTo(db.user);
+db.user.hasMany(db.musicalbums);
 
 module.exports = db

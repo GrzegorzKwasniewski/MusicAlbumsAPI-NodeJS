@@ -106,6 +106,17 @@ app.post('/musicalbums', function (req, res) {
     })
 })
 
+// POST FOR USERS
+app.post('/users', function (req, res) {
+    var body = _.pick(req.body, 'email', 'password');
+    
+    db.user.create(body).then(function (user) {
+        res.json(user.toPublicJSON()) // item has a lot of data specific to squelize and we don't want all of them so we call toJson with custom function
+    }, function (e) {
+        res.status(400).json(e)
+    })
+})
+
 app.post('/users/login', function (req, res) {
 	var body = _.pick(req.body, 'email', 'password')
 	var userInstance;
@@ -120,9 +131,9 @@ app.post('/users/login', function (req, res) {
             // this will be coverted to hash and this hash will be stored - see token.js
 			token: token
 		});
-	}).then(function (tokenInstance) {
-        // this is where we send back our token in respond
-		res.header('Auth', tokenInstance.get('token')).json(userInstance.toPublicJSON()); // userInstance is an user from db and in user model You have method toPublicJSON()
+	}).then(function (tokenInstance) { // You get tokenInstance from db.token.create
+        // we send back token and user info in body as json
+		res.header('Auth', tokenInstance.get('token')).json(userInstance.toPublicJSON());
 	}).catch(function () {
 		res.status(401).send();
 	})
@@ -147,6 +158,14 @@ app.delete('/musicalbums/:id', function (req, res) {
         res.status(500).send()
     })
 })
+
+app.delete('/users/login', middleware.requireAuthentication, function (req, res) {
+	req.token.destroy().then(function () {
+		res.status(204).send();
+	}).catch(function () {
+		res.status(500).send();
+	});
+});
 
 app.put('/musicalbums/:id', function (req, res) {
     
@@ -241,7 +260,7 @@ app.put('/musicalbums/:id', function (req, res) {
 //    
 });
 
-db.sequelize.sync().then(function () {
+db.sequelize.sync({force: true}).then(function () {
     app.listen(PORT, function () {
         console.log('Express listening on port ' + PORT);
     });
