@@ -16,11 +16,11 @@ var musicAlbumNextID = 1
 app.use(bodyParser.json())
 
 // setting GET method
-app.get('/', function (req, res) {
+app.get('/', middleware.requireAuthentication, function (req, res) {
     res.send('Music Albums API Root')
 })
 
-app.get('/musicalbums', function (req, res) {
+app.get('/musicalbums', middleware.requireAuthentication, function (req, res) {
     var queryParams = req.query
     var predicateObject = {}
     
@@ -84,7 +84,7 @@ app.get('/musicalbums', function (req, res) {
     })
 })
 
-app.get('/musicalbums/:id', function (req, res) {
+app.get('/musicalbums/:id', middleware.requireAuthentication, function (req, res) {
     var musicAlbumID = parseInt(req.params.id, 10)
     db.musicalbums.findById(musicAlbumID).then(function (musicAlbum) {
         if (!!musicAlbum) {
@@ -97,7 +97,7 @@ app.get('/musicalbums/:id', function (req, res) {
     })
 })
 
-app.post('/musicalbums', function (req, res) {
+app.post('/musicalbums', middleware.requireAuthentication, function (req, res) {
 
     var body = _.pick(req.body, 'title', 'author', 'tracksCount', 'publisher',  'publishedDate', 'ownLimitedEdition', 'ownPhysicalCD', 'ownDigital')
     
@@ -141,7 +141,7 @@ app.post('/users/login', function (req, res) {
 	})
 })
 
-app.delete('/musicalbums/:id', function (req, res) {
+app.delete('/musicalbums/:id', middleware.requireAuthentication, function (req, res) {
     var musicAlbumId = parseInt(req.params.id, 10);
     
     db.musicalbums.destroy({
@@ -169,7 +169,7 @@ app.delete('/users/login', middleware.requireAuthentication, function (req, res)
 	});
 });
 
-app.put('/musicalbums/:id', function (req, res) {
+app.put('/musicalbums/:id', middleware.requireAuthentication, function (req, res) {
     
     // Try to add error message when someone try to pass field that is not expected in the object - e.g "ownDigitallll"
     
