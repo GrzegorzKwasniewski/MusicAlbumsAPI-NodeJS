@@ -3,6 +3,8 @@ var app = express()
 var bodyParser = require('body-parser')
 var _ = require('underscore')
 var db = require('./db.js')
+var bcrypt = require('bcryptjs')
+var middleware = require('./middleware.js')(db); // with this we pass db as a argument
 
 // port for Heroku or local
 var PORT = process.env.PORT || 3000
